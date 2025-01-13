@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/middleware/auth_guard.dart';
 import 'package:mobile/screens/home_screen.dart';
+import 'package:mobile/screens/register_screen.dart';
+import 'package:mobile/services/service_locator.dart';
+import 'package:mobile/widgets/route_transitions.dart';
 
 void main() async {
+  setupLocator();
   runApp(const MyApp());
 }
 
@@ -13,41 +18,29 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'BookSync',
-      home: HomeScreen(),
-      /*onGenerateRoute: (RouteSettings settings) {
+      home: AuthGuard(
+        child: HomeScreen(),
+      ),
+      onGenerateRoute: (RouteSettings settings) {
         switch (settings.name) {
           case '/home':
             return NoTransitionPageRoute(
-                page: const HomeScreen(),
-                settings: const RouteSettings(name: "/home"));
-          case '/explore':
-            String currentText = settings.arguments as String;
+              page: const HomeScreen(),
+              settings: const RouteSettings(name: "/home"),
+            );
+          case '/register':
             return NoTransitionPageRoute(
-                page: ExploreScreen(currentText: currentText),
-                settings: const RouteSettings(name: "/explore"));
-          case '/library':
+              page: const RegisterScreen(),
+              settings: const RouteSettings(name: "/register"),
+            );
+          case '/login':
             return NoTransitionPageRoute(
-                page: const LibraryScreen(),
-                settings: const RouteSettings(name: "/library"));
-          case '/profile':
-            return NoTransitionPageRoute(
-                page: const ProfileScreen(),
-                settings: const RouteSettings(name: "/profile"));
-          case '/song':
-            return SlideUpTransitionPageRoute(
-                page: const SongScreen(),
-                settings: const RouteSettings(name: "/song"));
-          case '/playlist':
-            Playlist playlist = settings.arguments as Playlist;
-            return NoTransitionPageRoute(
-              page: PlaylistScreen(
-                playlist: playlist,
-              ),
-              settings: const RouteSettings(name: "/playlist"),
+              page: const RegisterScreen(),
+              settings: const RouteSettings(name: "/login"),
             );
         }
         return null;
-      },*/
+      },
     );
   }
 }
