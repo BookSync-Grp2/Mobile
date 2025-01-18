@@ -20,7 +20,25 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
-      body: Text("HELLO"),
+      body: Column(
+        children: [
+          const SizedBox(height: 50),
+          Center(
+            child: Text(
+              'Welcome, ${authService.currentUser!.firstName}!',
+              style: const TextStyle(fontSize: 24),
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () async {
+              await authService.logout();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+            child: const Text('Logout'),
+          ),
+        ],
+      ),
       backgroundColor: Colors.white,
     );
   }
