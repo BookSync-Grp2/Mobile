@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/middleware/auth_guard.dart';
 import 'package:mobile/screens/home_screen.dart';
+import 'package:mobile/screens/login_screen.dart';
 import 'package:mobile/screens/register_screen.dart';
 import 'package:mobile/services/service_locator.dart';
 import 'package:mobile/widgets/route_transitions.dart';
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
             );
           case '/login':
             return NoTransitionPageRoute(
-              page: const RegisterScreen(),
+              page: const LoginScreen(),
               settings: const RouteSettings(name: "/login"),
             );
         }
