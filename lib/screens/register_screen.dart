@@ -37,9 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (success) {
         if (!mounted) return;
-        // You can either automatically log them in and go to home
-        // or navigate back to login page
-        Navigator.of(context).pop(); // Go back to login
+        Navigator.of(context).pushReplacementNamed('/home');
       } else {
         setState(() {
           _errorMessage = 'Registration failed. Please try again.';
