@@ -5,7 +5,7 @@ class User {
   final String email;
   final DateTime dateJoined;
   final bool isValidated;
-  final String roleType;
+  final String role;
   final String? token;
 
   User({
@@ -15,7 +15,7 @@ class User {
     required this.lastName,
     required this.token,
     required this.dateJoined,
-    required this.roleType,
+    required this.role,
     required this.isValidated,
   });
 
@@ -27,7 +27,7 @@ class User {
       lastName: json['lastName'],
       token: token,
       dateJoined: DateTime.parse(json['dateJoined']),
-      roleType: json['roleType'],
+      role: json['role'],
       isValidated: json['validated'] ?? false,
     );
   }

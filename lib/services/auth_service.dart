@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile/utils/constants.dart';
 
 import '../models/user.dart';
 
@@ -10,24 +12,35 @@ class AuthService {
   final _storage = const FlutterSecureStorage();
 
   User? get currentUser => _currentUser;
+  String get baseUrl => Constants.baseUrl;
 
-  // Check if user is logged in on app start
   Future<bool> init() async {
     final token = await _storage.read(key: 'token');
-    if (token == null) return false;
+    if (token == null || !isTokenValid(token)) {
+      await logout();
+      return false;
+    }
 
     try {
-      // Validate token with backend and get user info
       final response = await http.get(
-        //TODO ADD .ENV VARIABLES
-        Uri.parse('http://localhost:5000/api/user/me'),
-        headers: {'Authorization': 'Bearer $token'},
+        Uri.parse('$baseUrl/api/user/me'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
       );
 
+      print(response.body);
+
       if (response.statusCode == 200) {
-        final userData = jsonDecode(response.body);
-        _currentUser = User.fromJson(userData, token);
+        final data = jsonDecode(response.body);
+        _currentUser = User.fromJson(data, token);
+
+        print('User authenticated: ${_currentUser!.email}');
         return true;
+      } else {
+        await logout();
+        return false;
       }
     } catch (e) {
       await logout();
@@ -37,27 +50,41 @@ class AuthService {
 
   Future<bool> login(String email, String password) async {
     try {
-      final response = await http.post(
-        //TODO ADD .ENV VARIABLES
-        Uri.parse('http://localhost:5000/api/auth/login'),
-        body: {'email': email, 'password': password},
+      final response = await http
+          .post(
+        Uri.parse('$baseUrl/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'email': email, 'password': password}),
+      )
+          .timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('Login request timed out');
+        },
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final token = data['token'];
-
-        // Store token
-        await _storage.write(key: 'token', value: token);
-
-        // Get user info
-        _currentUser = User.fromJson(data['user'], token);
-        return true;
+        return await onSuccessfulResponse(response);
+      } else if (response.statusCode == 401) {
+        print('Invalid credentials');
+        return false;
+      } else if (response.statusCode == 404) {
+        print('User not found');
+        return false;
+      } else {
+        print('Login failed: ${response.body}');
+        return false;
       }
+    } on http.ClientException catch (e) {
+      print('Network error: $e');
+      return false;
+    } on TimeoutException catch (e) {
+      print('Request timed out: $e');
+      return false;
     } catch (e) {
-      // Handle error
+      print('Unexpected error: $e');
+      return false;
     }
-    return false;
   }
 
   Future<void> logout() async {
@@ -73,25 +100,52 @@ class AuthService {
   }) async {
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:5000/api/auth/register'),
-        body: {
+        Uri.parse('$baseUrl/auth/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
           'firstName': firstName,
           'lastName': lastName,
           'email': email,
           'password': password,
-        },
+          'isValidated': false,
+          'roleType': 'USER',
+        }),
       );
 
-      if (response.statusCode == 201) {
-        // TODO Add automatic login here
-        return true;
+      if (response.statusCode == 200) {
+        return await onSuccessfulResponse(response);
       }
     } catch (e) {
-      // TODO Handle error
+      print('Registration error: $e');
     }
     return false;
   }
 
+  Future<bool> onSuccessfulResponse(http.Response response) async {
+    final data = jsonDecode(response.body);
+    final token = data['token'];
+
+    await _storage.write(key: 'token', value: token);
+    _currentUser = User.fromJson(data['user'], token);
+
+    return true;
+  }
+
   Map<String, String> get authHeaders =>
       {'Authorization': 'Bearer ${_currentUser?.token ?? ''}'};
+
+  bool isTokenValid(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return false;
+
+      final payload = json
+          .decode(utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))));
+
+      final expiry = DateTime.fromMillisecondsSinceEpoch(payload['exp'] * 1000);
+      return DateTime.now().isBefore(expiry);
+    } catch (e) {
+      return false;
+    }
+  }
 }
