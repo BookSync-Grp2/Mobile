@@ -1,4 +1,3 @@
-// screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:mobile/models/loan.dart';
 import 'package:mobile/services/auth_service.dart';
@@ -39,8 +38,22 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome, ${authService.currentUser!.firstName}!'),
+        title: GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(context, '/profile');
+          },
+          child: Text('Welcome, ${authService.currentUser!.firstName}!'),
+        ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () => Navigator.pushNamed(context, '/profile'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: 'Loan History',
+            onPressed: () => Navigator.pushNamed(context, '/loan-history'),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
