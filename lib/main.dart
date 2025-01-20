@@ -7,6 +7,9 @@ import 'package:mobile/screens/register_screen.dart';
 import 'package:mobile/services/service_locator.dart';
 import 'package:mobile/widgets/route_transitions.dart';
 
+import 'screens/loan_history_screen.dart';
+import 'screens/profile_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setupLocator();
@@ -45,6 +48,16 @@ class MyApp extends StatelessWidget {
             return NoTransitionPageRoute(
               page: const CreateLoanScreen(),
               settings: const RouteSettings(name: "/create-loan"),
+            );
+          case '/profile':
+            return NoTransitionPageRoute(
+              page: const ProfileScreen(),
+              settings: const RouteSettings(name: "/profile"),
+            );
+          case '/loan-history':
+            return NoTransitionPageRoute(
+              page: const LoanHistoryScreen(),
+              settings: const RouteSettings(name: "/loan-history"),
             );
         }
         return null;
