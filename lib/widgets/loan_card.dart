@@ -28,7 +28,6 @@ class LoanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('Building loan card for ${loan.book?.coverUrl}');
     return Card(
       elevation: 2,
       child: Padding(
@@ -70,28 +69,6 @@ class LoanCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      /*const SizedBox(width: 16),
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            loan.book?.coverUrl ??
-                                'https://via.placeholder.com/80x120',
-                            width: 80,
-                            height: 120,
-                            fit: BoxFit.contain,
-                            */ /*errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                width: 80,
-                                height: 120,
-                                color: Colors.grey[300],
-                                child: const Icon(Icons.broken_image,
-                                    color: Colors.grey),
-                              );
-                            },*/ /*
-                          ),
-                        ),
-                      ),*/
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -116,20 +93,24 @@ class LoanCard extends StatelessWidget {
                           horizontal: 8,
                           vertical: 4,
                         ),
-                        decoration: BoxDecoration(
-                          color: _getStatusColor().withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: _getStatusColor(),
-                          ),
-                        ),
-                        child: Text(
-                          _getRemainingDays(),
-                          style: TextStyle(
-                            color: _getStatusColor(),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        decoration: loan.isReturned
+                            ? BoxDecoration()
+                            : BoxDecoration(
+                                color: _getStatusColor().withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: _getStatusColor(),
+                                ),
+                              ),
+                        child: loan.isReturned
+                            ? SizedBox()
+                            : Text(
+                                _getRemainingDays(),
+                                style: TextStyle(
+                                  color: _getStatusColor(),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
                     ],
                   ),
@@ -148,13 +129,15 @@ class LoanCard extends StatelessWidget {
                             color: Colors.blue,
                           ),
                         ),
-                        child: const Text(
-                          'Not yet retrieved',
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: loan.isReturned
+                            ? SizedBox()
+                            : const Text(
+                                'Not yet retrieved',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
                     ),
                 ],
