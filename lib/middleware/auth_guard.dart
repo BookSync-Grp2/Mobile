@@ -34,7 +34,6 @@ class _AuthGuardState extends State<AuthGuard> {
 
   @override
   Widget build(BuildContext context) {
-    print('AuthGuard: ${authService.currentUser}');
     if (isLoading) {
       return const Scaffold(
         body: Center(

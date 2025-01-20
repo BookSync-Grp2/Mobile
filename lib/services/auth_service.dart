@@ -30,13 +30,10 @@ class AuthService {
         },
       );
 
-      print(response.body);
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _currentUser = User.fromJson(data, token);
 
-        print('User authenticated: ${_currentUser!.email}');
         return true;
       } else {
         await logout();

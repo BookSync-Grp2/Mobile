@@ -81,7 +81,6 @@ class LoanService {
         headers: _authService.authHeaders,
       );
 
-      print('Book details response: ${response.body}');
       if (response.statusCode == 200) {
         final bookJson = jsonDecode(response.body);
         return Book.fromJson(bookJson);
