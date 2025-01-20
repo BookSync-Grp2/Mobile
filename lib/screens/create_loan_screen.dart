@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:mobile/models/book.dart';
 import 'package:mobile/services/book_service.dart';
+import 'package:mobile/services/loan_service.dart';
 import 'package:mobile/services/service_locator.dart';
 
 class CreateLoanScreen extends StatefulWidget {
@@ -88,6 +89,18 @@ class _CreateLoanScreenState extends State<CreateLoanScreen> {
     );
 
     if (confirmed ?? false) {
+      if (LoanService.currentBooksCount >= 2) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('You can only borrow up to 2 books at a time.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
       final success = await bookService.createLoan(book.id);
       if (success) {
         if (mounted) {
